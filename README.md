@@ -105,3 +105,59 @@ curl "https://api.cloudflare.com/client/v4/zones/16f5c56c08ee93201e2733253570385
 - `cloudflare_api_token` - Cloudflare API Token（必需，敏感）
 - `cloudflare_zone_id` - Cloudflare Zone ID（必需）
 - `cloudflare_account_id` - Cloudflare Account ID（可选，用于账户级资源）
+
+## 高级功能
+
+### 动态 Phase 管理
+项目使用数据源和本地值来动态管理 Cloudflare phases，而不是硬编码字符串：
+
+```hcl
+# 本地值定义常用的 phases
+locals {
+  phases = {
+    custom_firewall  = "http_request_firewall_custom"
+    managed_firewall = "http_request_firewall_managed"
+    rate_limit      = "http_ratelimit"
+    ddos_l7         = "ddos_l7"
+    # ... 更多 phases
+  }
+}
+
+# 使用本地值而不是硬编码字符串
+resource "cloudflare_ruleset" "example" {
+  phase = local.phases.custom_firewall  # 而不是 "http_request_firewall_custom"
+}
+```
+
+### 自动发现现有 Rulesets
+使用数据源自动发现和管理现有的 managed rulesets：
+
+```hcl
+# 数据源获取现有 rulesets
+data "cloudflare_rulesets" "managed_rulesets" {
+  zone_id = var.cloudflare_zone_id
+}
+
+# 自动找到现有的 managed WAF ruleset
+locals {
+  managed_waf_ruleset = [
+    for ruleset in data.cloudflare_rulesets.managed_rulesets.rulesets : ruleset
+    if ruleset.phase == local.phases.managed_firewall && ruleset.kind == "zone"
+  ][0]
+}
+```
+
+### 可用 Phases 查看
+运行 `terraform apply` 后，你可以看到所有可用的 phases：
+- `http_request_origin`
+- `http_request_firewall_custom`
+- `http_request_firewall_managed`
+- `http_ratelimit`
+- `ddos_l7`
+- 等等...
+
+这种方法的优势：
+1. **可维护性** - 集中管理 phase 名称
+2. **可发现性** - 自动发现可用的 phases 和 rulesets
+3. **类型安全** - 减少拼写错误
+4. **动态性** - 自动适应 Cloudflare 的更新

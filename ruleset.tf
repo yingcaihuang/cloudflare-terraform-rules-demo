@@ -7,7 +7,7 @@ resource "cloudflare_ruleset" "zone_custom_firewall_entrypoint" {
   name        = "default"
   description = ""
   kind        = "zone"
-  phase       = "http_request_firewall_custom"
+  phase       = local.phases.custom_firewall
 
   rules = [
     {
@@ -32,7 +32,7 @@ resource "cloudflare_ruleset" "rate_limiting" {
   name        = "rate_limiting"
   description = "Rate limiting for mytv163 user agent"
   kind        = "zone"
-  phase       = "http_ratelimit"
+  phase       = local.phases.rate_limit
 
   rules = [
     {
@@ -54,14 +54,14 @@ resource "cloudflare_ruleset" "rate_limiting" {
 
 resource "cloudflare_ruleset" "managed_rules_exception" {
   zone_id     = var.cloudflare_zone_id
-  name        = "Zone-level Managed WAF"
-  description = "Deploy Cloudflare Managed Ruleset at zone level"
+  name        = local.managed_waf_ruleset.name
+  description = local.managed_waf_ruleset.description
   kind        = "zone"
-  phase       = "http_request_firewall_managed"
+  phase       = local.phases.managed_firewall
 
   rules = [
     {
-      description = "auto-custom-deploy-managed-rules"
+      description = "audo-custom-deploy-managed-rules"
       expression  = "(ip.src.country eq \"AX\")"
       action      = "skip"
       action_parameters = {
