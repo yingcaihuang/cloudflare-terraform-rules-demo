@@ -23,6 +23,29 @@
 - 15 秒内最多 10 个请求
 - 基于 colocation ID 和源 IP 进行限制
 
+### 3. Managed Rules Exception
+- 为来自 AX 国家的流量跳过托管规则
+- 使用 `skip` 动作和 `ruleset: current` 参数
+- 这允许特定流量绕过 Cloudflare 的托管 WAF 规则
+- 参考: [Cloudflare WAF Managed Rules](https://developers.cloudflare.com/waf/managed-rules/)
+
+**功能说明**:
+- `action: "skip"` - 跳过规则执行
+- `ruleset: "current"` - 跳过当前 ruleset 中的所有规则
+- 适用于需要为特定条件禁用托管规则的场景
+
+**API 示例**:
+```bash
+curl "https://api.cloudflare.com/client/v4/zones/16f5c56c08ee93201e2733253570385b/rulesets/27392cc1822f43b3b2809bb9bf2619e4/rules" \
+  -H "Authorization: Bearer $CF_AUTH_TOKEN" \
+  -d '{
+    "action": "skip",
+    "action_parameters": {"ruleset": "current"},
+    "description": "audo-custom-deploy-managed-rules",
+    "expression": "(ip.src.country eq \"AX\")"
+  }'
+```
+
 ## 使用方法
 
 1. 复制变量模板文件：

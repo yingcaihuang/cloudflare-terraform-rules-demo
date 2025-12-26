@@ -50,3 +50,23 @@ resource "cloudflare_ruleset" "rate_limiting" {
   ]
 }
 
+# 3. Managed Rules Exception (skip managed rules for specific conditions)
+
+resource "cloudflare_ruleset" "managed_rules_exception" {
+  zone_id     = var.cloudflare_zone_id
+  name        = "Zone-level Managed WAF"
+  description = "Deploy Cloudflare Managed Ruleset at zone level"
+  kind        = "zone"
+  phase       = "http_request_firewall_managed"
+
+  rules = [
+    {
+      description = "auto-custom-deploy-managed-rules"
+      expression  = "(ip.src.country eq \"AX\")"
+      action      = "skip"
+      action_parameters = {
+        ruleset = "current"
+      }
+    }
+  ]
+}
