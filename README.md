@@ -1,3 +1,5 @@
+![API Token 权限配置示例](image.png)
+
 # Cloudflare Terraform Rules Demo
 
 这个项目使用 Terraform 管理 Cloudflare 的安全规则和速率限制规则，采用现代化的配置方式，包括动态 phase 管理和自动发现功能。
