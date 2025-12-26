@@ -1,0 +1,41 @@
+1.custom rules
+Protect your website and API from malicious traffic with custom rules. Configure mitigation criteria and actions, or explore templates, for better security.
+curl \
+	"https://api.cloudflare.com/client/v4/zones/16f5c56c08ee93201e2733253570385b/rulesets/c56a368d9acb4b778407e4ea44bb2370/rules" \
+	-H "Authorization: Bearer $CF_AUTH_TOKEN" \
+	-d '{
+    "description": "custom_acl_v1",
+    "expression": "(ip.src.country eq \"AX\")",
+    "action": "block",
+    "action_parameters": {
+        "response": {
+            "status_code": 403,
+            "content_type": "text/html",
+            "content": "go away"
+        }
+    }
+}'
+2.rate limiting rule
+Protect your website and API from malicious traffic with rate limiting rules. Configure mitigation criteria and actions for better security.
+curl -X PUT \
+	"https://api.cloudflare.com/client/v4/zones/16f5c56c08ee93201e2733253570385b/rulesets/phases/http_ratelimit/entrypoint" \
+	-H "Authorization: Bearer $CF_AUTH_TOKEN" \
+	-d '{
+    "rules": [
+        {
+            "description": "new_rate_limiting_rule",
+            "expression": "(http.user_agent wildcard r\"mytv163\")",
+            "ratelimit": {
+                "characteristics": [
+                    "ip.src"
+                ],
+                "requests_to_origin": false,
+                "rate_exceeds": "request_base",
+                "period": 15,
+                "requests_per_period": 10
+            },
+            "customCounter": false,
+            "action": "block"
+        }
+    ]
+}'

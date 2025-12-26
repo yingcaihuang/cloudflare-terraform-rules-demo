@@ -1,0 +1,4 @@
+# Cloudflare Configuration
+cloudflare_api_token = "your_api_token_here"
+cloudflare_zone_id   = "your_zone_id_here"
+cloudflare_account_id = "your_account_id_here"  # Optional, only needed for account-level resources
