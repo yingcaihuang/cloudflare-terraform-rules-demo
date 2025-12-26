@@ -174,7 +174,6 @@ locals {
    - Zone:Zone:Read
 5. 指定适当的 Zone Resources（可以选择特定 zone 或所有 zone）
 
-![API Token 权限配置示例](image.png)
 
 **注意**: 这些 API 调用代表了上述所有更改。需要具有 `Zone > Zone WAF` 或更广泛权限的 API Token。
 
